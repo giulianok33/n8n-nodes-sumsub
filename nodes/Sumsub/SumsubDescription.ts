@@ -36,6 +36,18 @@ export const sumsubOperations: INodeProperties[] = [
 				description: 'Update applicant information',
 				action: 'Update an applicant',
 			},
+			{
+				name: 'Add Tags',
+				value: 'addTags',
+				description: 'Add custom tags to an applicant',
+				action: 'Add applicant tags',
+			},
+			{
+				name: 'Change Profile Data',
+				value: 'changeProfileData',
+				description: 'Change profile data details',
+				action: 'Change applicant profile data',
+			},
 		],
 		default: 'get',
 	},
@@ -138,14 +150,13 @@ export const sumsubFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['applicant'],
-				operation: ['get', 'getStatus', 'update'],
+				operation: ['get', 'getStatus', 'update', 'addTags', 'changeProfileData'],
 			},
 		},
 		default: '',
 		description: 'The applicant ID to retrieve',
 	},
 
-	// Update applicant fields
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
@@ -187,6 +198,130 @@ export const sumsubFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				description: 'Applicant last name',
+			},
+		],
+	},
+
+	// Add Applicant Tags fields
+	{
+		displayName: 'Tags',
+		name: 'tags',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['addTags'],
+			},
+		},
+		default: {},
+		description: 'Tags to add to the applicant',
+		options: [
+			{
+				name: 'tagList',
+				displayName: 'Tag',
+				values: [
+					{
+						displayName: 'Tag Name',
+						name: 'tagName',
+						type: 'string',
+						default: '',
+						description: 'Name of the tag',
+					},
+				],
+			},
+		],
+	},
+
+	// Change Profile Data fields
+	{
+		displayName: 'Fields to Update',
+		name: 'changeProfileDataFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['changeProfileData'],
+			},
+		},
+		default: {},
+		options: [
+			{
+				displayName: 'External User ID',
+				name: 'externalUserId',
+				type: 'string',
+				default: '',
+				description: 'External user ID from your system',
+			},
+			{
+				displayName: 'Email',
+				name: 'email',
+				type: 'string',
+				default: '',
+				placeholder: 'name@email.com',
+				description: 'Applicant email address',
+			},
+			{
+				displayName: 'Phone',
+				name: 'phone',
+				type: 'string',
+				default: '',
+				description: 'Applicant phone number',
+			},
+			{
+				displayName: 'Source Key',
+				name: 'sourceKey',
+				type: 'string',
+				default: '',
+				description: 'Helps group clients sending applicants',
+			},
+			{
+				displayName: 'Language',
+				name: 'lang',
+				type: 'string',
+				default: '',
+				description: 'Perferred language',
+			},
+		],
+	},
+	{
+		displayName: 'Metadata',
+		name: 'metadata',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['changeProfileData'],
+			},
+		},
+		default: {},
+		description: 'Metadata key-value pairs',
+		options: [
+			{
+				name: 'metadataValues',
+				displayName: 'Metadata',
+				values: [
+					{
+						displayName: 'Key',
+						name: 'key',
+						type: 'string',
+						default: '',
+						description: 'Metadata key',
+					},
+					{
+						displayName: 'Value',
+						name: 'value',
+						type: 'string',
+						default: '',
+						description: 'Metadata value',
+					},
+				],
 			},
 		],
 	},

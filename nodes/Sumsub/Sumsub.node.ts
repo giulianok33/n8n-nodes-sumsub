@@ -56,6 +56,16 @@ interface GenerateWebsdkLinkBody extends IDataObject {
 	externalActionId?: string;
 }
 
+interface ChangeProfileDataBody extends IDataObject {
+	id: string;
+	externalUserId?: string;
+	email?: string;
+	phone?: string;
+	sourceKey?: string;
+	lang?: string;
+	metadata?: Array<{ key: string; value: string }>;
+}
+
 interface WebsdkLinkResponse extends IDataObject {
 	url: string;
 }
@@ -211,6 +221,22 @@ export class Sumsub implements INodeType {
 							appToken,
 							appSecret,
 						});
+					} else if (operation === 'addTags') {
+						responseData = await addApplicantTags({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'changeProfileData') {
+						responseData = await changeProfileData({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
 					} else {
 						throw new NodeOperationError(
 							this.getNode(),
@@ -286,7 +312,7 @@ interface MakeRequestParams {
 	apiUrl: string;
 	appToken: string;
 	appSecret: string;
-	body?: IDataObject;
+	body?: any;
 }
 
 async function makeRequest(params: MakeRequestParams): Promise<SumsubApiResponse> {
@@ -436,4 +462,72 @@ async function generateWebsdkLink(params: ApplicantOperationParams): Promise<Web
 		body,
 		...requestParams,
 	})) as WebsdkLinkResponse;
+}
+
+async function addApplicantTags(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const tagsData = executeFunctions.getNodeParameter('tags', itemIndex, {}) as {
+		tagList?: Array<{ tagName: string }>;
+	};
+
+	const tags: string[] = [];
+	if (tagsData.tagList) {
+		tagsData.tagList.forEach((item) => {
+			if (item.tagName) {
+				tags.push(item.tagName);
+			}
+		});
+	}
+
+	const path = `/resources/applicants/${applicantId}/tags/add`;
+	return (await makeRequest({
+		executeFunctions,
+		method: 'POST',
+		path,
+		body: tags,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function changeProfileData(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const changeFields = executeFunctions.getNodeParameter(
+		'changeProfileDataFields',
+		itemIndex,
+		{},
+	) as {
+		externalUserId?: string;
+		email?: string;
+		phone?: string;
+		sourceKey?: string;
+		lang?: string;
+	};
+	const metadata = executeFunctions.getNodeParameter('metadata', itemIndex, {}) as {
+		metadataValues?: Array<{ key: string; value: string }>;
+	};
+
+	const body: ChangeProfileDataBody = {
+		id: applicantId,
+	};
+
+	if (changeFields.externalUserId) body.externalUserId = changeFields.externalUserId;
+	if (changeFields.email) body.email = changeFields.email;
+	if (changeFields.phone) body.phone = changeFields.phone;
+	if (changeFields.sourceKey) body.sourceKey = changeFields.sourceKey;
+	if (changeFields.lang) body.lang = changeFields.lang;
+
+	if (metadata.metadataValues) {
+		body.metadata = metadata.metadataValues;
+	}
+
+	const path = '/resources/applicants';
+	return (await makeRequest({
+		executeFunctions,
+		method: 'PATCH',
+		path,
+		body,
+		...requestParams,
+	})) as IDataObject;
 }
