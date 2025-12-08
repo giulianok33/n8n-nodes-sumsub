@@ -48,6 +48,12 @@ export const sumsubOperations: INodeProperties[] = [
 				description: 'Change profile data details',
 				action: 'Change applicant profile data',
 			},
+			{
+				name: 'Remove Tags',
+				value: 'removeTags',
+				description: 'Remove custom tags from an applicant',
+				action: 'Remove applicant tags',
+			},
 		],
 		default: 'get',
 	},
@@ -150,7 +156,7 @@ export const sumsubFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['applicant'],
-				operation: ['get', 'getStatus', 'update', 'addTags', 'changeProfileData'],
+				operation: ['get', 'getStatus', 'update', 'addTags', 'removeTags', 'changeProfileData'],
 			},
 		},
 		default: '',
@@ -213,11 +219,11 @@ export const sumsubFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['applicant'],
-				operation: ['addTags'],
+				operation: ['addTags', 'removeTags'],
 			},
 		},
 		default: {},
-		description: 'Tags to add to the applicant',
+		description: 'Tags to add or remove',
 		options: [
 			{
 				name: 'tagList',

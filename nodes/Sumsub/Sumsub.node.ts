@@ -531,3 +531,29 @@ async function changeProfileData(params: ApplicantOperationParams): Promise<IDat
 		...requestParams,
 	})) as IDataObject;
 }
+
+async function removeApplicantTags(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const tagsData = executeFunctions.getNodeParameter('tags', itemIndex, {}) as {
+		tagList?: Array<{ tagName: string }>;
+	};
+
+	const tags: string[] = [];
+	if (tagsData.tagList) {
+		tagsData.tagList.forEach((item) => {
+			if (item.tagName) {
+				tags.push(item.tagName);
+			}
+		});
+	}
+
+	const path = `/resources/applicants/${applicantId}/tags`;
+	return (await makeRequest({
+		executeFunctions,
+		method: 'DELETE',
+		path,
+		body: tags,
+		...requestParams,
+	})) as IDataObject;
+}
