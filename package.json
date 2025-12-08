@@ -12,12 +12,12 @@
 	"license": "MIT",
 	"homepage": "https://github.com/giulianok33/n8n-nodes-sumsub",
 	"author": {
-		"name": "Laurent Therond",
-		"email": "lrtherond@gmail.com"
+		"name": "Giuliano Ciccone",
+		"email": "giuliano@k33.com"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/lrtherond/n8n-nodes-sumsub.git"
+		"url": "https://github.com/giulianok33/n8n-nodes-sumsub.git"
 	},
 	"engines": {
 		"node": ">=20.15"
