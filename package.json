@@ -1,5 +1,5 @@
 {
-	"name": "@lrtherond/n8n-nodes-sumsub",
+	"name": "@giulianok33/n8n-nodes-sumsub",
 	"version": "1.1.2",
 	"description": "n8n node for Sumsub (forked from @nkt/n8n-nodes-sumsub)",
 	"keywords": [
@@ -10,7 +10,7 @@
 		"aml"
 	],
 	"license": "MIT",
-	"homepage": "https://github.com/lrtherond/n8n-nodes-sumsub",
+	"homepage": "https://github.com/giulianok33/n8n-nodes-sumsub",
 	"author": {
 		"name": "Laurent Therond",
 		"email": "lrtherond@gmail.com"
