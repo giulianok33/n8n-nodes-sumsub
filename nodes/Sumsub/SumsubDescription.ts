@@ -108,6 +108,12 @@ export const sumsubOperations: INodeProperties[] = [
 				description: 'Change applicant provided info (fixedInfo) after verification',
 				action: 'Change applicant provided info',
 			},
+			{
+				name: 'Get Verification Levels',
+				value: 'getLevels',
+				description: 'Get all verification levels',
+				action: 'Get verification levels',
+			},
 		],
 		default: 'get',
 	},

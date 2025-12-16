@@ -320,6 +320,14 @@ export class Sumsub implements INodeType {
 							appToken,
 							appSecret,
 						});
+					} else if (operation === 'getLevels') {
+						responseData = await getApplicantLevels({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
 					} else {
 						throw new NodeOperationError(
 							this.getNode(),
@@ -957,4 +965,15 @@ async function changeProvidedInfo(params: ApplicantOperationParams): Promise<App
 		body,
 		...requestParams,
 	})) as ApplicantData;
+}
+
+async function getApplicantLevels(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, ...requestParams } = params;
+	const path = '/resources/applicants/-/levels';
+	return (await makeRequest({
+		executeFunctions,
+		method: 'GET',
+		path,
+		...requestParams,
+	})) as IDataObject;
 }
