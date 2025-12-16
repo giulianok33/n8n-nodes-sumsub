@@ -23,9 +23,7 @@ jobs:
 
     - name: Deploy Files
       run: |
-        # Recursively copy current directory to server
-        # Using -r for recursive, -o StrictHostKeyChecking=no to avoid prompt issues (redundant with known_hosts but safe)
-        scp -r -o StrictHostKeyChecking=no . ${{ secrets.SERVER_USER }}@${{ secrets.IP }}:/opt/n8n-docker-caddy/n8n-nodes-sumsub
+        rsync -avz --exclude '.git' -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.SERVER_USER }}@${{ secrets.IP }}:/opt/n8n-docker-caddy/n8n-nodes-sumsub
 
     - name: Build and Restart
       run: |
