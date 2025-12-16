@@ -49,7 +49,7 @@ jobs:
           echo "📦 Building custom node (running as root)..."
           # We run as root to avoid permission issues with the uploaded files
           # Then we explicitly chown back to node:node so the app can use them
-          docker compose exec -T -u root n8n sh -c "cd /home/node/.n8n/custom/n8n-nodes-sumsub && npm install --unsafe-perm && npm run build && chown -R node:node ."
+          docker compose exec -T -u root n8n sh -c "cd /home/node/.n8n/custom/n8n-nodes-sumsub && npm install --include=dev --unsafe-perm && npm run build && chown -R node:node ."
 
           echo "🔄 Restarting n8n..."
           docker compose restart n8n
