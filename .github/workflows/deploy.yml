@@ -2,7 +2,7 @@ name: Deploy Custom Node
 
 on:
   push:
-    branches: [ main ]
+    branches: [ development ]
 
 jobs:
   deploy:
