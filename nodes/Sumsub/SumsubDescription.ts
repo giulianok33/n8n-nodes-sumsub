@@ -91,10 +91,22 @@ export const sumsubOperations: INodeProperties[] = [
 				action: 'Add metadata',
 			},
 			{
-				name: 'Remove Metadata Key',
+				name: 'Remove Metadata Keys',
 				value: 'removeMetadataKey',
-				description: 'Remove a specific metadata key from an applicant',
-				action: 'Remove metadata key',
+				description: 'Remove specific metadata keys from an applicant',
+				action: 'Remove metadata keys',
+			},
+			{
+				name: 'Change Level',
+				value: 'changeLevel',
+				description: 'Move an applicant to a different verification level',
+				action: 'Change applicant level',
+			},
+			{
+				name: 'Change Provided Info',
+				value: 'changeProvidedInfo',
+				description: 'Change applicant provided info (fixedInfo) after verification',
+				action: 'Change applicant provided info',
 			},
 		],
 		default: 'get',
@@ -211,6 +223,8 @@ export const sumsubFields: INodeProperties[] = [
 					'removeAllMetadata',
 					'removeMetadataKey',
 					'addMetadata',
+					'changeLevel',
+					'changeProvidedInfo',
 				],
 			},
 		},
@@ -484,20 +498,66 @@ export const sumsubFields: INodeProperties[] = [
 		],
 	},
 
-	// Remove Metadata Key fields
+	// Remove Metadata Keys fields
 	{
-		displayName: 'Key to Remove',
-		name: 'keyToRemove',
-		type: 'string',
-		default: '',
-		required: true,
+		displayName: 'Keys to Remove',
+		name: 'keysToRemove',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
 		displayOptions: {
 			show: {
 				resource: ['applicant'],
 				operation: ['removeMetadataKey'],
 			},
 		},
-		description: 'The key of the metadata item to remove',
+		default: {},
+		description: 'Keys of the metadata items to remove',
+		options: [
+			{
+				name: 'keyList',
+				displayName: 'Key',
+				values: [
+					{
+						displayName: 'Key Name',
+						name: 'keyName',
+						type: 'string',
+						default: '',
+						description: 'The key of the metadata item to remove',
+					},
+				],
+			},
+		],
+	},
+
+	// Change Level fields
+	{
+		displayName: 'New Level Name',
+		name: 'newLevelName',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['changeLevel'],
+			},
+		},
+		default: '',
+		description: 'The new level name to move the applicant to',
+	},
+	{
+		displayName: 'Reset Verification Steps',
+		name: 'resetVerificationSteps',
+		type: 'boolean',
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['changeLevel'],
+			},
+		},
+		default: false,
+		description: 'Whether to reset verification steps',
 	},
 
 	// Generate WebSDK Link fields
@@ -570,6 +630,110 @@ export const sumsubFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				description: 'Specific action identifier',
+			},
+		],
+	},
+	// Change Provided Info fields
+	{
+		displayName: 'Fixed Info',
+		name: 'fixedInfo',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['changeProvidedInfo'],
+			},
+		},
+		default: {},
+		options: [
+			{
+				displayName: 'First Name',
+				name: 'firstName',
+				type: 'string',
+				default: '',
+				description: 'Applicant first name',
+			},
+			{
+				displayName: 'Last Name',
+				name: 'lastName',
+				type: 'string',
+				default: '',
+				description: 'Applicant last name',
+			},
+			{
+				displayName: 'Middle Name',
+				name: 'middleName',
+				type: 'string',
+				default: '',
+				description: 'Applicant middle name',
+			},
+			{
+				displayName: 'Legal Name',
+				name: 'legalName',
+				type: 'string',
+				default: '',
+				description: 'Applicant legal name',
+			},
+			{
+				displayName: 'Gender',
+				name: 'gender',
+				type: 'options',
+				options: [
+					{
+						name: 'Male',
+						value: 'M',
+					},
+					{
+						name: 'Female',
+						value: 'F',
+					},
+				],
+				default: 'M',
+				description: 'Applicant gender',
+			},
+			{
+				displayName: 'Date of Birth',
+				name: 'dob',
+				type: 'string',
+				default: '',
+				placeholder: 'YYYY-MM-DD',
+				description: 'Applicant date of birth',
+			},
+			{
+				displayName: 'Place of Birth',
+				name: 'placeOfBirth',
+				type: 'string',
+				default: '',
+				description: 'Applicant place of birth',
+			},
+			{
+				displayName: 'Country of Birth',
+				name: 'countryOfBirth',
+				type: 'string',
+				default: '',
+				description: 'Applicant country of birth (ISO 3166-1 alpha-3 code)',
+			},
+			{
+				displayName: 'State of Birth',
+				name: 'stateOfBirth',
+				type: 'string',
+				default: '',
+				description: 'Applicant state of birth',
+			},
+			{
+				displayName: 'Country',
+				name: 'country',
+				type: 'string',
+				default: '',
+				description: 'Applicant country (ISO 3166-1 alpha-3 code)',
+			},
+			{
+				displayName: 'Nationality',
+				name: 'nationality',
+				type: 'string',
+				default: '',
+				description: 'Applicant nationality (ISO 3166-1 alpha-3 code)',
 			},
 		],
 	},

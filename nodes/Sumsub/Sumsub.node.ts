@@ -94,6 +94,7 @@ interface ApplicantReview extends IDataObject {
 
 interface ApplicantInfo extends IDataObject {
 	firstName?: string;
+	legalName?: string;
 	firstNameEn?: string;
 	middleName?: string;
 	middleNameEn?: string;
@@ -303,6 +304,22 @@ export class Sumsub implements INodeType {
 							appToken,
 							appSecret,
 						});
+					} else if (operation === 'changeLevel') {
+						responseData = await changeApplicantLevel({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'changeProvidedInfo') {
+						responseData = await changeProvidedInfo({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
 					} else {
 						throw new NodeOperationError(
 							this.getNode(),
@@ -367,6 +384,7 @@ function createSignature({
 	body: string;
 	appSecret: string;
 }): string {
+	console.log('Computing signature for:', method.toUpperCase(), path, body);
 	const message = timestamp + method.toUpperCase() + path + body;
 	return createHmac('sha256', appSecret).update(message).digest('hex');
 }
@@ -379,18 +397,29 @@ interface MakeRequestParams {
 	appToken: string;
 	appSecret: string;
 	body?: any;
+	qs?: IDataObject;
 }
 
 async function makeRequest(params: MakeRequestParams): Promise<SumsubApiResponse> {
-	const { executeFunctions, method, path, apiUrl, appToken, appSecret, body } = params;
+	const { executeFunctions, method, path, apiUrl, appToken, appSecret, body, qs } = params;
 	const timestamp = Math.floor(Date.now() / 1000);
-	const bodyString = body ? JSON.stringify(body) : '';
-	const signature = createSignature({ method, path, timestamp, body: bodyString, appSecret });
+	const bodyString = body !== undefined ? JSON.stringify(body) : '';
+
+	let pathWithQuery = path;
+	if (qs && Object.keys(qs).length > 0) {
+		const queryString = Object.keys(qs)
+			.map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(qs[key] as string)}`)
+			.join('&');
+		pathWithQuery += `?${queryString}`;
+	}
+
+	const signature = createSignature({ method, path: pathWithQuery, timestamp, body: bodyString, appSecret });
 
 	const options: IHttpRequestOptions = {
 		method,
 		url: path,
 		baseURL: apiUrl,
+		qs,
 		headers: {
 			'Content-Type': 'application/json',
 			'X-App-Token': appToken,
@@ -660,7 +689,6 @@ async function resetVerificationStep(params: ApplicantOperationParams): Promise<
 			executeFunctions,
 			method: 'POST',
 			path,
-			body: {},
 			...requestParams,
 		});
 		results.push(response);
@@ -776,7 +804,18 @@ async function removeAllApplicantMetadata(params: ApplicantOperationParams): Pro
 async function removeApplicantMetadataKey(params: ApplicantOperationParams): Promise<IDataObject> {
 	const { executeFunctions, itemIndex, ...requestParams } = params;
 	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
-	const keyToRemove = executeFunctions.getNodeParameter('keyToRemove', itemIndex) as string;
+	const keysData = executeFunctions.getNodeParameter('keysToRemove', itemIndex, {}) as {
+		keyList?: Array<{ keyName: string }>;
+	};
+
+	const keysToRemove: string[] = [];
+	if (keysData.keyList) {
+		keysData.keyList.forEach((item) => {
+			if (item.keyName) {
+				keysToRemove.push(item.keyName);
+			}
+		});
+	}
 
 	// 1. Get current applicant data
 	const getPath = `/resources/applicants/${applicantId}/one`;
@@ -789,8 +828,8 @@ async function removeApplicantMetadataKey(params: ApplicantOperationParams): Pro
 
 	const currentMetadata = applicantData.metadata || [];
 
-	// 2. Filter out the key to remove
-	const newMetadata = currentMetadata.filter((item) => item.key !== keyToRemove);
+	// 2. Filter out the keys to remove
+	const newMetadata = currentMetadata.filter((item) => !keysToRemove.includes(item.key));
 
 	// 3. Update the profile
 	const body: ChangeProfileDataBody = {
@@ -804,6 +843,33 @@ async function removeApplicantMetadataKey(params: ApplicantOperationParams): Pro
 		method: 'PATCH',
 		path: patchPath,
 		body,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function changeApplicantLevel(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const newLevelName = executeFunctions.getNodeParameter('newLevelName', itemIndex) as string;
+	const resetVerificationSteps = executeFunctions.getNodeParameter(
+		'resetVerificationSteps',
+		itemIndex,
+		false,
+	) as boolean;
+
+	const query: IDataObject = {
+		name: newLevelName,
+	};
+	if (resetVerificationSteps) {
+		query.resetVerificationSteps = true;
+	}
+
+	const path = `/resources/applicants/${applicantId}/moveToLevel`;
+	return (await makeRequest({
+		executeFunctions,
+		method: 'POST',
+		path,
+		qs: query,
 		...requestParams,
 	})) as IDataObject;
 }
@@ -863,4 +929,32 @@ async function addApplicantMetadata(params: ApplicantOperationParams): Promise<I
 		body,
 		...requestParams,
 	})) as IDataObject;
+}
+
+async function changeProvidedInfo(params: ApplicantOperationParams): Promise<ApplicantData> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const fixedInfo = executeFunctions.getNodeParameter('fixedInfo', itemIndex, {}) as ApplicantInfo;
+
+	const body: ApplicantInfo = {};
+	if (fixedInfo.firstName) body.firstName = fixedInfo.firstName;
+	if (fixedInfo.lastName) body.lastName = fixedInfo.lastName;
+	if (fixedInfo.middleName) body.middleName = fixedInfo.middleName;
+	if (fixedInfo.legalName) body.legalName = fixedInfo.legalName;
+	if (fixedInfo.gender) body.gender = fixedInfo.gender;
+	if (fixedInfo.dob) body.dob = fixedInfo.dob;
+	if (fixedInfo.placeOfBirth) body.placeOfBirth = fixedInfo.placeOfBirth;
+	if (fixedInfo.countryOfBirth) body.countryOfBirth = fixedInfo.countryOfBirth;
+	if (fixedInfo.stateOfBirth) body.stateOfBirth = fixedInfo.stateOfBirth;
+	if (fixedInfo.country) body.country = fixedInfo.country;
+	if (fixedInfo.nationality) body.nationality = fixedInfo.nationality;
+
+	const path = `/resources/applicants/${applicantId}/fixedInfo`;
+	return (await makeRequest({
+		executeFunctions,
+		method: 'PATCH',
+		path,
+		body,
+		...requestParams,
+	})) as ApplicantData;
 }
