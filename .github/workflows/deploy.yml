@@ -41,11 +41,17 @@ jobs:
         CLEAN_USER=$(echo "$DEPLOY_USER" | xargs)
 
         ssh -o StrictHostKeyChecking=no "${CLEAN_USER}@${CLEAN_IP}" << 'EOF'
+          set -e # Fail immediately if any command error occurs
           cd /opt/n8n-docker-caddy/
-          # Fix permissions: files uploaded by root via rsync need to be owned by node user inside container
+
+          echo "🔧 Fixing permissions..."
           docker compose exec -u root n8n chown -R node:node /home/node/.n8n/custom/n8n-nodes-sumsub
 
-          # Run build as node user
+          echo "📦 Installing dependencies and Building..."
           docker compose exec -u node n8n sh -c "cd /home/node/.n8n/custom/n8n-nodes-sumsub && npm install --include=dev && npm run build"
+
+          echo "🔄 Restarting n8n..."
           docker compose restart n8n
+
+          echo "✅ Deployment Successfully Completed!"
         EOF
