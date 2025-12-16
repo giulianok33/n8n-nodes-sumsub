@@ -45,10 +45,10 @@ jobs:
           cd /opt/n8n-docker-caddy/
 
           echo "🔧 Fixing permissions..."
-          docker compose exec -u root n8n chown -R node:node /home/node/.n8n/custom/n8n-nodes-sumsub
+          docker compose exec -T -u root n8n chown -R node:node /home/node/.n8n/custom/n8n-nodes-sumsub
 
           echo "📦 Installing dependencies and Building..."
-          docker compose exec -u node n8n sh -c "cd /home/node/.n8n/custom/n8n-nodes-sumsub && npm install --include=dev && npm run build"
+          docker compose exec -T -u node n8n sh -c "cd /home/node/.n8n/custom/n8n-nodes-sumsub && npm install --include=dev && npm run build"
 
           echo "🔄 Restarting n8n..."
           docker compose restart n8n
