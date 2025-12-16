@@ -63,6 +63,7 @@ interface ChangeProfileDataBody extends IDataObject {
 	phone?: string;
 	sourceKey?: string;
 	lang?: string;
+	registrationDate?: string;
 	metadata?: Array<{ key: string; value: string }>;
 }
 
@@ -205,6 +206,14 @@ export class Sumsub implements INodeType {
 							appToken,
 							appSecret,
 						});
+					} else if (operation === 'getByExternalId') {
+						responseData = await getApplicantByExternalId({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
 					} else if (operation === 'getStatus') {
 						responseData = await getApplicantStatus({
 							executeFunctions: this,
@@ -231,6 +240,63 @@ export class Sumsub implements INodeType {
 						});
 					} else if (operation === 'changeProfileData') {
 						responseData = await changeProfileData({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'removeTags') {
+						responseData = await removeApplicantTags({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'resetStep') {
+						responseData = await resetVerificationStep({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'addNote') {
+						responseData = await addApplicantNote({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+
+					} else if (operation === 'updateMetadata') {
+						responseData = await updateApplicantMetadata({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'removeAllMetadata') {
+						responseData = await removeAllApplicantMetadata({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'removeMetadataKey') {
+						responseData = await removeApplicantMetadataKey({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'addMetadata') {
+						responseData = await addApplicantMetadata({
 							executeFunctions: this,
 							itemIndex: i,
 							apiUrl,
@@ -503,10 +569,11 @@ async function changeProfileData(params: ApplicantOperationParams): Promise<IDat
 		phone?: string;
 		sourceKey?: string;
 		lang?: string;
+		registrationDate?: string;
 	};
-	const metadata = executeFunctions.getNodeParameter('metadata', itemIndex, {}) as {
-		metadataValues?: Array<{ key: string; value: string }>;
-	};
+	const metadata = executeFunctions.getNodeParameter('metadata', itemIndex, []) as
+		| string
+		| Array<{ key: string; value: string }>;
 
 	const body: ChangeProfileDataBody = {
 		id: applicantId,
@@ -517,9 +584,21 @@ async function changeProfileData(params: ApplicantOperationParams): Promise<IDat
 	if (changeFields.phone) body.phone = changeFields.phone;
 	if (changeFields.sourceKey) body.sourceKey = changeFields.sourceKey;
 	if (changeFields.lang) body.lang = changeFields.lang;
+	if (changeFields.registrationDate) body.registrationDate = changeFields.registrationDate;
 
-	if (metadata.metadataValues) {
-		body.metadata = metadata.metadataValues;
+	if (metadata) {
+		if (typeof metadata === 'string') {
+			try {
+				const parsedMetadata = JSON.parse(metadata);
+				if (Array.isArray(parsedMetadata)) {
+					body.metadata = parsedMetadata;
+				}
+			} catch (error) {
+				// Ignore JSON parse error if invalid json is provided, or handle it as needed
+			}
+		} else if (Array.isArray(metadata)) {
+			body.metadata = metadata;
+		}
 	}
 
 	const path = '/resources/applicants';
@@ -554,6 +633,234 @@ async function removeApplicantTags(params: ApplicantOperationParams): Promise<ID
 		method: 'DELETE',
 		path,
 		body: tags,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function getApplicantByExternalId(params: ApplicantOperationParams): Promise<ApplicantData> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const externalUserId = executeFunctions.getNodeParameter('externalUserId', itemIndex) as string;
+	const path = `/resources/applicants/-;externalUserId=${externalUserId}/one`;
+	return (await makeRequest({
+		executeFunctions,
+		method: 'GET',
+		path,
+		...requestParams,
+	})) as ApplicantData;
+}
+async function resetVerificationStep(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const stepsToReset = executeFunctions.getNodeParameter('stepToReset', itemIndex) as string[];
+
+	const results = [];
+	for (const stepToReset of stepsToReset) {
+		const path = `/resources/applicants/${applicantId}/resetStep/${stepToReset}`;
+		const response = await makeRequest({
+			executeFunctions,
+			method: 'POST',
+			path,
+			body: {},
+			...requestParams,
+		});
+		results.push(response);
+	}
+
+	return { results };
+}
+
+async function addApplicantNote(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const note = executeFunctions.getNodeParameter('note', itemIndex) as string;
+	const tagsData = executeFunctions.getNodeParameter('tags', itemIndex, {}) as {
+		tagList?: Array<{ tagName: string }>;
+	};
+
+	const tags: string[] = [];
+	if (tagsData.tagList) {
+		tagsData.tagList.forEach((item) => {
+			if (item.tagName) {
+				tags.push(item.tagName);
+			}
+		});
+	}
+
+	const body: IDataObject = {
+		applicantId,
+		note,
+	};
+
+	if (tags.length > 0) {
+		body.tags = tags;
+	}
+
+	const path = '/resources/api/applicants/notes';
+	return (await makeRequest({
+		executeFunctions,
+		method: 'POST',
+		path,
+		body,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function updateApplicantMetadata(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const updatesData = executeFunctions.getNodeParameter('metadataUpdates', itemIndex, {}) as {
+		updates?: Array<{ key: string; value: string }>;
+	};
+
+	// 1. Get current applicant data to retrieve existing metadata
+	const getPath = `/resources/applicants/${applicantId}/one`;
+	const applicantData = (await makeRequest({
+		executeFunctions,
+		method: 'GET',
+		path: getPath,
+		...requestParams,
+	})) as ApplicantData;
+
+	const metadata = applicantData.metadata || [];
+
+	// 2. Update existing keys if found
+	// If the key is not found, we do NOT add it (as per user request "Update Only")
+	if (updatesData.updates) {
+		updatesData.updates.forEach((update) => {
+			if (update.key) {
+				for (const item of metadata) {
+					if (item.key === update.key) {
+						item.value = update.value || '';
+						break;
+					}
+				}
+			}
+		});
+	}
+
+	// 3. Update the profile with metadata
+	const body: ChangeProfileDataBody = {
+		id: applicantId,
+		metadata: metadata,
+	};
+
+	const patchPath = '/resources/applicants';
+	return (await makeRequest({
+		executeFunctions,
+		method: 'PATCH',
+		path: patchPath,
+		body,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function removeAllApplicantMetadata(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+
+	const body: ChangeProfileDataBody = {
+		id: applicantId,
+		metadata: [],
+	};
+
+	const patchPath = '/resources/applicants';
+	return (await makeRequest({
+		executeFunctions,
+		method: 'PATCH',
+		path: patchPath,
+		body,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function removeApplicantMetadataKey(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const keyToRemove = executeFunctions.getNodeParameter('keyToRemove', itemIndex) as string;
+
+	// 1. Get current applicant data
+	const getPath = `/resources/applicants/${applicantId}/one`;
+	const applicantData = (await makeRequest({
+		executeFunctions,
+		method: 'GET',
+		path: getPath,
+		...requestParams,
+	})) as ApplicantData;
+
+	const currentMetadata = applicantData.metadata || [];
+
+	// 2. Filter out the key to remove
+	const newMetadata = currentMetadata.filter((item) => item.key !== keyToRemove);
+
+	// 3. Update the profile
+	const body: ChangeProfileDataBody = {
+		id: applicantId,
+		metadata: newMetadata,
+	};
+
+	const patchPath = '/resources/applicants';
+	return (await makeRequest({
+		executeFunctions,
+		method: 'PATCH',
+		path: patchPath,
+		body,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function addApplicantMetadata(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const updatesData = executeFunctions.getNodeParameter('metadataUpdates', itemIndex, {}) as {
+		updates?: Array<{ key: string; value: string }>;
+	};
+
+	// 1. Get current applicant data
+	const getPath = `/resources/applicants/${applicantId}/one`;
+	const applicantData = (await makeRequest({
+		executeFunctions,
+		method: 'GET',
+		path: getPath,
+		...requestParams,
+	})) as ApplicantData;
+
+	const metadata = applicantData.metadata || [];
+
+	// 2. Iterate input updates to Update or Add
+	if (updatesData.updates) {
+		updatesData.updates.forEach((update) => {
+			if (update.key) {
+				let found = false;
+				for (const item of metadata) {
+					if (item.key === update.key) {
+						item.value = update.value || '';
+						found = true;
+						break;
+					}
+				}
+				// If not found, append new key-value pair
+				if (!found) {
+					metadata.push({
+						key: update.key,
+						value: update.value || '',
+					});
+				}
+			}
+		});
+	}
+
+	// 3. Update the profile
+	const body: ChangeProfileDataBody = {
+		id: applicantId,
+		metadata: metadata,
+	};
+
+	const patchPath = '/resources/applicants';
+	return (await makeRequest({
+		executeFunctions,
+		method: 'PATCH',
+		path: patchPath,
+		body,
 		...requestParams,
 	})) as IDataObject;
 }

@@ -25,6 +25,12 @@ export const sumsubOperations: INodeProperties[] = [
 				action: 'Get an applicant',
 			},
 			{
+				name: 'Get by External ID',
+				value: 'getByExternalId',
+				description: 'Get applicant information by external user ID',
+				action: 'Get applicant by external ID',
+			},
+			{
 				name: 'Get Status',
 				value: 'getStatus',
 				description: 'Get applicant verification status',
@@ -53,6 +59,42 @@ export const sumsubOperations: INodeProperties[] = [
 				value: 'removeTags',
 				description: 'Remove custom tags from an applicant',
 				action: 'Remove applicant tags',
+			},
+			{
+				name: 'Reset Verification Step',
+				value: 'resetStep',
+				description: 'Reset a specific verification step for an applicant',
+				action: 'Reset verification step',
+			},
+			{
+				name: 'Add Note',
+				value: 'addNote',
+				description: 'Add a note to an applicant profile',
+				action: 'Add applicant note',
+			},
+			{
+				name: 'Update Metadata',
+				value: 'updateMetadata',
+				description: 'Update a specific metadata key while interpreting others',
+				action: 'Update metadata',
+			},
+			{
+				name: 'Remove All Metadata',
+				value: 'removeAllMetadata',
+				description: 'Remove all metadata from an applicant',
+				action: 'Remove all metadata',
+			},
+			{
+				name: 'Add Metadata',
+				value: 'addMetadata',
+				description: 'Add or update metadata keys while preserving others',
+				action: 'Add metadata',
+			},
+			{
+				name: 'Remove Metadata Key',
+				value: 'removeMetadataKey',
+				description: 'Remove a specific metadata key from an applicant',
+				action: 'Remove metadata key',
 			},
 		],
 		default: 'get',
@@ -89,7 +131,7 @@ export const sumsubFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['applicant'],
-				operation: ['create'],
+				operation: ['create', 'getByExternalId'],
 			},
 		},
 		default: '',
@@ -156,7 +198,20 @@ export const sumsubFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['applicant'],
-				operation: ['get', 'getStatus', 'update', 'addTags', 'removeTags', 'changeProfileData'],
+				operation: [
+					'get',
+					'getStatus',
+					'update',
+					'addTags',
+					'removeTags',
+					'changeProfileData',
+					'resetStep',
+					'addNote',
+					'updateMetadata',
+					'removeAllMetadata',
+					'removeMetadataKey',
+					'addMetadata',
+				],
 			},
 		},
 		default: '',
@@ -291,11 +346,75 @@ export const sumsubFields: INodeProperties[] = [
 				default: '',
 				description: 'Perferred language',
 			},
+			{
+				displayName: 'Registration Date',
+				name: 'registrationDate',
+				type: 'dateTime',
+				default: '',
+				description: 'Date and time when the applicant was initially registered in your system',
+			},
 		],
 	},
 	{
 		displayName: 'Metadata',
 		name: 'metadata',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['changeProfileData'],
+			},
+		},
+		default: '[]',
+		description: 'Metadata key-value pairs as JSON array (e.g. [{"key": "key1", "value": "value1"}])',
+	},
+
+
+
+	// Reset Verification Step fields
+	{
+		displayName: 'Step to Reset',
+		name: 'stepToReset',
+		type: 'multiOptions',
+		options: [
+			{ name: 'Identity', value: 'IDENTITY' },
+			{ name: 'Selfie', value: 'SELFIE' },
+			{ name: 'Proof of Residence', value: 'PROOF_OF_RESIDENCE' },
+			{ name: 'Phone Verification', value: 'PHONE_VERIFICATION' },
+			{ name: 'Email Verification', value: 'EMAIL_VERIFICATION' },
+			{ name: 'Questionnaire', value: 'QUESTIONNAIRE' },
+			{ name: 'Company Data', value: 'COMPANY_DATA' },
+			{ name: 'Company Documents', value: 'COMPANY_DOCUMENTS' },
+			{ name: 'Applicant Data', value: 'APPLICANT_DATA' },
+		],
+		default: [],
+		description: 'The verification step to reset',
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['resetStep'],
+			},
+		},
+	},
+
+	// Add Note fields
+	{
+		displayName: 'Note',
+		name: 'note',
+		type: 'string',
+		default: '',
+		description: 'The note content to add',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['addNote'],
+			},
+		},
+	},
+	{
+		displayName: 'Tags',
+		name: 'tags',
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,
@@ -303,33 +422,82 @@ export const sumsubFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['applicant'],
-				operation: ['changeProfileData'],
+				operation: ['addNote'],
 			},
 		},
 		default: {},
-		description: 'Metadata key-value pairs',
+		description: 'Tags to attach to the note',
 		options: [
 			{
-				name: 'metadataValues',
-				displayName: 'Metadata',
+				name: 'tagList',
+				displayName: 'Tag',
+				values: [
+					{
+						displayName: 'Tag Name',
+						name: 'tagName',
+						type: 'string',
+						default: '',
+						description: 'Name of the tag',
+					},
+				],
+			},
+		],
+	},
+
+	// Update Metadata fields
+	{
+		displayName: 'Metadata Updates',
+		name: 'metadataUpdates',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['updateMetadata', 'addMetadata'],
+			},
+		},
+		default: {},
+		description: 'Metadata key-value pairs to update',
+		options: [
+			{
+				name: 'updates',
+				displayName: 'Update',
 				values: [
 					{
 						displayName: 'Key',
 						name: 'key',
 						type: 'string',
 						default: '',
-						description: 'Metadata key',
+						description: 'The key of the metadata item to update',
 					},
 					{
 						displayName: 'Value',
 						name: 'value',
 						type: 'string',
 						default: '',
-						description: 'Metadata value',
+						description: 'The new value for the metadata item',
 					},
 				],
 			},
 		],
+	},
+
+	// Remove Metadata Key fields
+	{
+		displayName: 'Key to Remove',
+		name: 'keyToRemove',
+		type: 'string',
+		default: '',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['removeMetadataKey'],
+			},
+		},
+		description: 'The key of the metadata item to remove',
 	},
 
 	// Generate WebSDK Link fields
