@@ -1,0 +1,21 @@
+name: Deploy Custom Node
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /opt/n8n-docker-caddy/
+          git pull origin development
+          docker compose exec -u node n8n sh -c "cd /home/node/.n8n/custom/n8n-nodes-sumsub && npm install --include=dev && npm run build"
+          docker compose restart n8n
