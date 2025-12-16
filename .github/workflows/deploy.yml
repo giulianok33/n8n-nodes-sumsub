@@ -25,7 +25,7 @@ jobs:
       run: |
         # Recursively copy current directory to server
         # Using -r for recursive, -o StrictHostKeyChecking=no to avoid prompt issues (redundant with known_hosts but safe)
-        scp -r . ${{ secrets.SERVER_USER }}@${{ secrets.IP }}:/opt/n8n-docker-caddy/n8n-nodes-sumsub
+        scp -r -o StrictHostKeyChecking=no . ${{ secrets.SERVER_USER }}@${{ secrets.IP }}:/opt/n8n-docker-caddy/n8n-nodes-sumsub
 
     - name: Build and Restart
       run: |
