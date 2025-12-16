@@ -40,19 +40,13 @@ jobs:
         CLEAN_IP=$(echo "$DEPLOY_IP" | xargs)
         CLEAN_USER=$(echo "$DEPLOY_USER" | xargs)
 
-        ssh -o StrictHostKeyChecking=no "${CLEAN_USER}@${CLEAN_IP}" << 'EOF'
+        ssh -o StrictHostKeyChecking=no "${CLEAN_USER}@${CLEAN_IP}" /bin/bash << 'EOF'
           set -e # Fail immediately if error
           set -x # Print commands as they run
 
           cd /opt/n8n-docker-caddy/
 
-          echo "🔍 Checking container status..."
-          docker compose ps
-
-          echo "🔍 Verifying directory inside container..."
-          docker compose exec -T -u root n8n ls -ld /home/node/.n8n/custom/n8n-nodes-sumsub
-
-          echo "🔧 Fixing permissions..."
+          echo " Fixing permissions..."
           docker compose exec -T -u root n8n chown -R node:node /home/node/.n8n/custom/n8n-nodes-sumsub
 
           echo "📦 Installing dependencies and Building..."
