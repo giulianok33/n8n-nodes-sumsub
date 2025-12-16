@@ -9,7 +9,19 @@ jobs:
     environment: development
     runs-on: ubuntu-latest
     steps:
-    - name: Deploy to Server
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Copy files to Server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "."
+        target: "/opt/n8n-docker-caddy/n8n-nodes-sumsub"
+
+    - name: Build and Restart
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.IP }}
@@ -17,6 +29,5 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           cd /opt/n8n-docker-caddy/
-          git pull origin development
           docker compose exec -u node n8n sh -c "cd /home/node/.n8n/custom/n8n-nodes-sumsub && npm install --include=dev && npm run build"
           docker compose restart n8n
