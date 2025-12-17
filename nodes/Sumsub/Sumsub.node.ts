@@ -312,13 +312,6 @@ export class Sumsub implements INodeType {
 							appToken,
 							appSecret,
 						});
-						responseData = await changeApplicantLevel({
-							executeFunctions: this,
-							itemIndex: i,
-							apiUrl,
-							appToken,
-							appSecret,
-						});
 					} else if (operation === 'changeProvidedInfo') {
 						responseData = await changeProvidedInfo({
 							executeFunctions: this,
