@@ -237,6 +237,7 @@ export const sumsubFields: INodeProperties[] = [
 					'addMetadata',
 					'changeLevel',
 					'changeProvidedInfo',
+					'changeApplicantStatusToInit',
 				],
 			},
 		},
@@ -746,6 +747,205 @@ export const sumsubFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				description: 'Applicant nationality (ISO 3166-1 alpha-3 code)',
+			},
+		],
+	},
+	// Change Applicant Status to Init fields
+	{
+		displayName: 'Reasons',
+		name: 'reasons',
+		type: 'fixedCollection',
+		placeholder: 'Add Reason',
+		default: {},
+		typeOptions: {
+			multipleValues: true,
+		},
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['changeApplicantStatusToInit'],
+			},
+		},
+		options: [
+			{
+				name: 'reasonsList',
+				displayName: 'Reason',
+				values: [
+					{
+						displayName: 'Category',
+						name: 'category',
+						type: 'options',
+						options: [
+							{ name: 'Manual', value: 'manual' },
+							{ name: 'Fraud', value: 'fraud' },
+							{ name: 'Finance', value: 'finance' },
+							{ name: 'Regulation', value: 'regulation' },
+							{ name: 'Abuse', value: 'abuse' },
+							{ name: 'Device', value: 'device' },
+						],
+						default: 'manual',
+						description: 'Category of the rejection reason',
+					},
+					// Manual Reasons
+					{
+						displayName: 'Reason Code',
+						name: 'manualCode',
+						type: 'options',
+						displayOptions: {
+							show: {
+								category: ['manual'],
+							},
+						},
+						options: [
+							{ name: 'Risk Team Decision', value: 'riskTeamDecision' },
+							{ name: 'Additional Document Request', value: 'additionalDocumentRequest' },
+						],
+						default: 'additionalDocumentRequest',
+						description: 'Reason code for Manual category',
+					},
+					// Fraud Reasons
+					{
+						displayName: 'Reason Code',
+						name: 'fraudCode',
+						type: 'options',
+						displayOptions: {
+							show: {
+								category: ['fraud'],
+							},
+						},
+						options: [
+							{ name: 'Document Forgery', value: 'documentForgery' },
+							{ name: 'Multi Accounting', value: 'multiAccounting' },
+							{ name: 'Fake Contact Data', value: 'fakeContactData' },
+							{ name: 'Location Manipulation', value: 'locationManipulation' },
+							{ name: 'Image Manipulation', value: 'imageManipulation' },
+							{ name: 'Stolen Identity', value: 'stolenIdentity' },
+							{ name: 'Social Engineering', value: 'socialEngineering' },
+							{ name: 'Elder Abuse', value: 'elderAbuse' },
+						],
+						default: 'documentForgery',
+						description: 'Reason code for Fraud category',
+					},
+					// Finance Reasons
+					{
+						displayName: 'Reason Code',
+						name: 'financeCode',
+						type: 'options',
+						displayOptions: {
+							show: {
+								category: ['finance'],
+							},
+						},
+						options: [
+							{ name: 'Chargeback', value: 'chargeback' },
+							{ name: 'Suspicious Accounts', value: 'suspiciousAccounts' },
+							{ name: 'High Risk Payment Method', value: 'highRiskPaymentMethod' },
+							{ name: 'Money Muling', value: 'moneyMuling' },
+							{ name: 'Card Scam', value: 'cardScam' },
+						],
+						default: 'chargeback',
+						description: 'Reason code for Finance category',
+					},
+					// Regulation Reasons
+					{
+						displayName: 'Reason Code',
+						name: 'regulationCode',
+						type: 'options',
+						displayOptions: {
+							show: {
+								category: ['regulation'],
+							},
+						},
+						options: [
+							{ name: 'Sanctioned Jurisdiction', value: 'sanctionedJurisdiction' },
+							{ name: 'Sanctioned Person', value: 'sanctionedPerson' },
+							{ name: 'Missing Required Documents', value: 'missingRequiredDocuments' },
+						],
+						default: 'missingRequiredDocuments',
+						description: 'Reason code for Regulation category',
+					},
+					// Abuse Reasons
+					{
+						displayName: 'Reason Code',
+						name: 'abuseCode',
+						type: 'options',
+						displayOptions: {
+							show: {
+								category: ['abuse'],
+							},
+						},
+						options: [
+							{ name: 'Automated Behavior', value: 'automatedBehavior' },
+							{ name: 'Account Sharing', value: 'accountSharing' },
+							{ name: 'Multi Accounting', value: 'multiAccounting' },
+							{ name: 'Promotion Abuse', value: 'promotionAbuse' },
+							{ name: 'Terms Violation', value: 'termsViolation' },
+						],
+						default: 'automatedBehavior',
+						description: 'Reason code for Abuse category',
+					},
+					// Device Reasons
+					{
+						displayName: 'Reason Code',
+						name: 'deviceCode',
+						type: 'options',
+						displayOptions: {
+							show: {
+								category: ['device'],
+							},
+						},
+						options: [
+							{ name: 'Blacklisted Device', value: 'blacklistedDevice' },
+							{ name: 'Suspicious Device', value: 'suspiciousDevice' },
+						],
+						default: 'blacklistedDevice',
+						description: 'Reason code for Device category',
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: 'Note',
+		name: 'note',
+		type: 'string',
+		default: '',
+		description: 'The note content to add',
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['changeApplicantStatusToInit'],
+			},
+		},
+	},
+	{
+		displayName: 'Tags',
+		name: 'tags',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['changeApplicantStatusToInit'],
+			},
+		},
+		default: {},
+		description: 'Tags to attach to the note',
+		options: [
+			{
+				name: 'tagList',
+				displayName: 'Tag',
+				values: [
+					{
+						displayName: 'Tag Name',
+						name: 'tagName',
+						type: 'string',
+						default: '',
+						description: 'Name of the tag',
+					},
+				],
 			},
 		],
 	},
