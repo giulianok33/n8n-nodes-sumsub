@@ -109,6 +109,12 @@ export const sumsubOperations: INodeProperties[] = [
 				action: 'Change applicant provided info',
 			},
 			{
+				name: 'Change Status to Init',
+				value: 'changeApplicantStatusToInit',
+				description: 'Reset applicant status to Init (Documents Requested) to allow re-upload',
+				action: 'Change applicant status to init',
+			},
+			{
 				name: 'Get Verification Levels',
 				value: 'getLevels',
 				description: 'Get all verification levels',

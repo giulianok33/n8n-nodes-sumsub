@@ -131,6 +131,14 @@ interface ApplicantData extends IDataObject {
 	review?: ApplicantReview;
 }
 
+interface ChangeStatusToInitBody extends IDataObject {
+	note?: string;
+	tags?: string[];
+	reasons?: {
+		[key: string]: string[];
+	};
+}
+
 type SumsubApiResponse = ApplicantData | ApplicantReview | WebsdkLinkResponse | IDataObject;
 
 export class Sumsub implements INodeType {
@@ -304,7 +312,6 @@ export class Sumsub implements INodeType {
 							appToken,
 							appSecret,
 						});
-					} else if (operation === 'changeLevel') {
 						responseData = await changeApplicantLevel({
 							executeFunctions: this,
 							itemIndex: i,
@@ -314,6 +321,14 @@ export class Sumsub implements INodeType {
 						});
 					} else if (operation === 'changeProvidedInfo') {
 						responseData = await changeProvidedInfo({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'changeApplicantStatusToInit') {
+						responseData = await changeApplicantStatusToInit({
 							executeFunctions: this,
 							itemIndex: i,
 							apiUrl,
@@ -804,6 +819,77 @@ async function removeAllApplicantMetadata(params: ApplicantOperationParams): Pro
 		executeFunctions,
 		method: 'PATCH',
 		path: patchPath,
+		body,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function changeApplicantStatusToInit(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const note = executeFunctions.getNodeParameter('note', itemIndex, '') as string;
+	const tagsData = executeFunctions.getNodeParameter('tags', itemIndex, {}) as {
+		tagList?: Array<{ tagName: string }>;
+	};
+	const reasonsData = executeFunctions.getNodeParameter('reasons', itemIndex, {}) as {
+		reasonsList?: Array<{
+			category: string;
+			manualCode?: string;
+			fraudCode?: string;
+			financeCode?: string;
+			regulationCode?: string;
+			abuseCode?: string;
+			deviceCode?: string;
+		}>;
+	};
+
+	const body: ChangeStatusToInitBody = {};
+
+	if (note) {
+		body.note = note;
+	}
+
+	if (tagsData.tagList) {
+		const tags: string[] = [];
+		tagsData.tagList.forEach((item) => {
+			if (item.tagName) {
+				tags.push(item.tagName);
+			}
+		});
+		if (tags.length > 0) {
+			body.tags = tags;
+		}
+	}
+
+	if (reasonsData.reasonsList) {
+		const reasons: { [key: string]: string[] } = {};
+		reasonsData.reasonsList.forEach((item) => {
+			const category = item.category;
+			let code = '';
+			if (category === 'manual') code = item.manualCode || '';
+			else if (category === 'fraud') code = item.fraudCode || '';
+			else if (category === 'finance') code = item.financeCode || '';
+			else if (category === 'regulation') code = item.regulationCode || '';
+			else if (category === 'abuse') code = item.abuseCode || '';
+			else if (category === 'device') code = item.deviceCode || '';
+
+			if (category && code) {
+				if (!reasons[category]) {
+					reasons[category] = [];
+				}
+				reasons[category].push(code);
+			}
+		});
+		if (Object.keys(reasons).length > 0) {
+			body.reasons = reasons;
+		}
+	}
+
+	const path = `/resources/applicants/${applicantId}/-/init`;
+	return (await makeRequest({
+		executeFunctions,
+		method: 'POST',
+		path,
 		body,
 		...requestParams,
 	})) as IDataObject;
