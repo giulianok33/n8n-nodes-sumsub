@@ -176,6 +176,10 @@ export class Sumsub implements INodeType {
 						name: 'SDK Integration',
 						value: 'sdkIntegration',
 					},
+					{
+						name: 'Transaction',
+						value: 'transaction',
+					},
 				],
 				default: 'applicant',
 			},
@@ -217,6 +221,22 @@ export class Sumsub implements INodeType {
 						});
 					} else if (operation === 'getByExternalId') {
 						responseData = await getApplicantByExternalId({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'getReviewHistory') {
+						responseData = await getApplicantReviewHistory({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'getReviewStatus') {
+						responseData = await getApplicantReviewStatus({
 							executeFunctions: this,
 							itemIndex: i,
 							apiUrl,
@@ -344,6 +364,22 @@ export class Sumsub implements INodeType {
 							appToken,
 							appSecret,
 						});
+					} else if (operation === 'deactivate') {
+						responseData = await deactivateApplicant({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'sendEmailToBeneficiaries') {
+						responseData = await sendEmailToBeneficiaries({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
 					} else {
 						throw new NodeOperationError(
 							this.getNode(),
@@ -353,6 +389,37 @@ export class Sumsub implements INodeType {
 				} else if (resource === 'sdkIntegration') {
 					if (operation === 'generateWebsdkLink') {
 						responseData = await generateWebsdkLink({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else {
+						throw new NodeOperationError(
+							this.getNode(),
+							`The operation "${operation}" is not known!`,
+						);
+					}
+				} else if (resource === 'transaction') {
+					if (operation === 'delete') {
+						responseData = await deleteTransaction({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'get') {
+						responseData = await getTransaction({
+							executeFunctions: this,
+							itemIndex: i,
+							apiUrl,
+							appToken,
+							appSecret,
+						});
+					} else if (operation === 'getTags') {
+						responseData = await getTransactionTags({
 							executeFunctions: this,
 							itemIndex: i,
 							apiUrl,
@@ -508,6 +575,38 @@ async function getApplicant(params: ApplicantOperationParams): Promise<Applicant
 		path,
 		...requestParams,
 	})) as ApplicantData;
+}
+
+async function getApplicantReviewHistory(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const additionalFields = executeFunctions.getNodeParameter('additionalFields', itemIndex, {}) as {
+		levelName?: string;
+	};
+
+	let path = `/resources/applicants/${applicantId}/review/history`;
+	if (additionalFields.levelName) {
+		path += `?levelName=${encodeURIComponent(additionalFields.levelName)}`;
+	}
+
+	return (await makeRequest({
+		executeFunctions,
+		method: 'GET',
+		path,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function getApplicantReviewStatus(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const path = `/resources/applicants/${applicantId}/review/status`;
+	return (await makeRequest({
+		executeFunctions,
+		method: 'GET',
+		path,
+		...requestParams,
+	})) as IDataObject;
 }
 
 async function getApplicantStatus(params: ApplicantOperationParams): Promise<ApplicantReview> {
@@ -1063,4 +1162,68 @@ async function getApplicantLevels(params: ApplicantOperationParams): Promise<IDa
 		path,
 		...requestParams,
 	})) as IDataObject;
+}
+
+async function deactivateApplicant(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const path = `/resources/applicants/${applicantId}/presence/deactivated`;
+	return (await makeRequest({
+		executeFunctions,
+		method: 'PATCH',
+		path,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function sendEmailToBeneficiaries(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const applicantId = executeFunctions.getNodeParameter('applicantId', itemIndex) as string;
+	const path = `/resources/applicants/${applicantId}/verificationStatusEmailToBeneficiaries`;
+	return (await makeRequest({
+		executeFunctions,
+		method: 'POST',
+		path,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function deleteTransaction(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const txnId = executeFunctions.getNodeParameter('txnId', itemIndex) as string;
+	const path = `/resources/kyt/txns/${txnId}`;
+	return (await makeRequest({
+		executeFunctions,
+		method: 'DELETE',
+		path,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function getTransaction(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const txnId = executeFunctions.getNodeParameter('txnId', itemIndex) as string;
+	const path = `/resources/kyt/txns/${txnId}`;
+	return (await makeRequest({
+		executeFunctions,
+		method: 'GET',
+		path,
+		...requestParams,
+	})) as IDataObject;
+}
+
+async function getTransactionTags(params: ApplicantOperationParams): Promise<IDataObject> {
+	const { executeFunctions, itemIndex, ...requestParams } = params;
+	const txnId = executeFunctions.getNodeParameter('txnId', itemIndex) as string;
+	const path = `/resources/kyt/txns/${txnId}/tags`;
+	const response = await makeRequest({
+		executeFunctions,
+		method: 'GET',
+		path,
+		...requestParams,
+	});
+	if (Array.isArray(response)) {
+		return { tags: response } as IDataObject;
+	}
+	return response as IDataObject;
 }

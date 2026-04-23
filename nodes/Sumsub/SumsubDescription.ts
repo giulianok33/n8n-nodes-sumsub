@@ -13,58 +13,10 @@ export const sumsubOperations: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Create',
-				value: 'create',
-				description: 'Create a new applicant',
-				action: 'Create an applicant',
-			},
-			{
-				name: 'Get',
-				value: 'get',
-				description: 'Get applicant information',
-				action: 'Get an applicant',
-			},
-			{
-				name: 'Get by External ID',
-				value: 'getByExternalId',
-				description: 'Get applicant information by external user ID',
-				action: 'Get applicant by external ID',
-			},
-			{
-				name: 'Get Status',
-				value: 'getStatus',
-				description: 'Get applicant verification status',
-				action: 'Get applicant status',
-			},
-			{
-				name: 'Update',
-				value: 'update',
-				description: 'Update applicant information',
-				action: 'Update an applicant',
-			},
-			{
-				name: 'Add Tags',
-				value: 'addTags',
-				description: 'Add custom tags to an applicant',
-				action: 'Add applicant tags',
-			},
-			{
-				name: 'Change Profile Data',
-				value: 'changeProfileData',
-				description: 'Change profile data details',
-				action: 'Change applicant profile data',
-			},
-			{
-				name: 'Remove Tags',
-				value: 'removeTags',
-				description: 'Remove custom tags from an applicant',
-				action: 'Remove applicant tags',
-			},
-			{
-				name: 'Reset Verification Step',
-				value: 'resetStep',
-				description: 'Reset a specific verification step for an applicant',
-				action: 'Reset verification step',
+				name: 'Add Metadata',
+				value: 'addMetadata',
+				description: 'Add or update metadata keys while preserving others',
+				action: 'Add metadata',
 			},
 			{
 				name: 'Add Note',
@@ -73,34 +25,22 @@ export const sumsubOperations: INodeProperties[] = [
 				action: 'Add applicant note',
 			},
 			{
-				name: 'Update Metadata',
-				value: 'updateMetadata',
-				description: 'Update a specific metadata key while interpreting others',
-				action: 'Update metadata',
-			},
-			{
-				name: 'Remove All Metadata',
-				value: 'removeAllMetadata',
-				description: 'Remove all metadata from an applicant',
-				action: 'Remove all metadata',
-			},
-			{
-				name: 'Add Metadata',
-				value: 'addMetadata',
-				description: 'Add or update metadata keys while preserving others',
-				action: 'Add metadata',
-			},
-			{
-				name: 'Remove Metadata Keys',
-				value: 'removeMetadataKey',
-				description: 'Remove specific metadata keys from an applicant',
-				action: 'Remove metadata keys',
+				name: 'Add Tags',
+				value: 'addTags',
+				description: 'Add custom tags to an applicant',
+				action: 'Add applicant tags',
 			},
 			{
 				name: 'Change Level',
 				value: 'changeLevel',
 				description: 'Move an applicant to a different verification level',
 				action: 'Change applicant level',
+			},
+			{
+				name: 'Change Profile Data',
+				value: 'changeProfileData',
+				description: 'Change profile data details',
+				action: 'Change applicant profile data',
 			},
 			{
 				name: 'Change Provided Info',
@@ -115,10 +55,94 @@ export const sumsubOperations: INodeProperties[] = [
 				action: 'Change applicant status to init',
 			},
 			{
+				name: 'Create',
+				value: 'create',
+				description: 'Create a new applicant',
+				action: 'Create an applicant',
+			},
+			{
+				name: 'Deactivate',
+				value: 'deactivate',
+				description: 'Deactivate an applicant profile',
+				action: 'Deactivate applicant',
+			},
+			{
+				name: 'Get',
+				value: 'get',
+				description: 'Get applicant information',
+				action: 'Get an applicant',
+			},
+			{
+				name: 'Get by External ID',
+				value: 'getByExternalId',
+				description: 'Get applicant information by external user ID',
+				action: 'Get applicant by external ID',
+			},
+			{
+				name: 'Get Review History',
+				value: 'getReviewHistory',
+				description: 'Get the review history of an applicant profile',
+				action: 'Get applicant review history',
+			},
+			{
+				name: 'Get Review Status',
+				value: 'getReviewStatus',
+				description: 'Get applicant review status (when utilizing WebSDK or MobileSDK)',
+				action: 'Get applicant review status',
+			},
+			{
+				name: 'Get Status',
+				value: 'getStatus',
+				description: 'Get applicant verification status',
+				action: 'Get applicant status',
+			},
+			{
 				name: 'Get Verification Levels',
 				value: 'getLevels',
 				description: 'Get all verification levels',
 				action: 'Get verification levels',
+			},
+			{
+				name: 'Remove All Metadata',
+				value: 'removeAllMetadata',
+				description: 'Remove all metadata from an applicant',
+				action: 'Remove all metadata',
+			},
+			{
+				name: 'Remove Metadata Keys',
+				value: 'removeMetadataKey',
+				description: 'Remove specific metadata keys from an applicant',
+				action: 'Remove metadata keys',
+			},
+			{
+				name: 'Remove Tags',
+				value: 'removeTags',
+				description: 'Remove custom tags from an applicant',
+				action: 'Remove applicant tags',
+			},
+			{
+				name: 'Reset Verification Step',
+				value: 'resetStep',
+				description: 'Reset a specific verification step for an applicant',
+				action: 'Reset verification step',
+			},
+			{
+				name: 'Send Email to Beneficiaries',
+				value: 'sendEmailToBeneficiaries',
+				description: 'Send mass email notifications recursively to all associated parties within a company structure',
+				action: 'Send email to beneficiaries',
+			},
+			{
+				name: 'Update',
+				value: 'update',
+				description: 'Update applicant information',
+				action: 'Update an applicant',
+			},
+			{
+				name: 'Update Metadata',
+				value: 'updateMetadata',
+				description: 'Update a specific metadata key while interpreting others',
+				action: 'Update metadata',
 			},
 		],
 		default: 'get',
@@ -142,6 +166,38 @@ export const sumsubOperations: INodeProperties[] = [
 			},
 		],
 		default: 'generateWebsdkLink',
+	},
+	{
+		displayName: 'Operation',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: {
+			show: {
+				resource: ['transaction'],
+			},
+		},
+		options: [
+			{
+				name: 'Delete',
+				value: 'delete',
+				description: 'Delete a transaction from the system',
+				action: 'Delete a transaction',
+			},
+			{
+				name: 'Get',
+				value: 'get',
+				description: 'Get transaction information',
+				action: 'Get a transaction',
+			},
+			{
+				name: 'Get Tags',
+				value: 'getTags',
+				description: 'Get custom tags assigned to a transaction',
+				action: 'Get transaction tags',
+			},
+		],
+		default: 'delete',
 	},
 ];
 
@@ -224,6 +280,8 @@ export const sumsubFields: INodeProperties[] = [
 				resource: ['applicant'],
 				operation: [
 					'get',
+					'getReviewHistory',
+					'getReviewStatus',
 					'getStatus',
 					'update',
 					'addTags',
@@ -238,11 +296,37 @@ export const sumsubFields: INodeProperties[] = [
 					'changeLevel',
 					'changeProvidedInfo',
 					'changeApplicantStatusToInit',
+					'deactivate',
+					'sendEmailToBeneficiaries',
 				],
 			},
 		},
 		default: '',
 		description: 'The applicant ID to retrieve',
+	},
+
+	// Get Review History extra fields
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: {
+			show: {
+				resource: ['applicant'],
+				operation: ['getReviewHistory'],
+			},
+		},
+		default: {},
+		options: [
+			{
+				displayName: 'Level Name',
+				name: 'levelName',
+				type: 'string',
+				default: '',
+				description: 'Filter review history by verification level name',
+			},
+		],
 	},
 
 	{
@@ -297,6 +381,7 @@ export const sumsubFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,
+			sortable: true,
 		},
 		displayOptions: {
 			show: {
@@ -338,13 +423,6 @@ export const sumsubFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'External User ID',
-				name: 'externalUserId',
-				type: 'string',
-				default: '',
-				description: 'External user ID from your system',
-			},
-			{
 				displayName: 'Email',
 				name: 'email',
 				type: 'string',
@@ -353,18 +431,11 @@ export const sumsubFields: INodeProperties[] = [
 				description: 'Applicant email address',
 			},
 			{
-				displayName: 'Phone',
-				name: 'phone',
+				displayName: 'External User ID',
+				name: 'externalUserId',
 				type: 'string',
 				default: '',
-				description: 'Applicant phone number',
-			},
-			{
-				displayName: 'Source Key',
-				name: 'sourceKey',
-				type: 'string',
-				default: '',
-				description: 'Helps group clients sending applicants',
+				description: 'External user ID from your system',
 			},
 			{
 				displayName: 'Language',
@@ -374,11 +445,25 @@ export const sumsubFields: INodeProperties[] = [
 				description: 'Perferred language',
 			},
 			{
+				displayName: 'Phone',
+				name: 'phone',
+				type: 'string',
+				default: '',
+				description: 'Applicant phone number',
+			},
+			{
 				displayName: 'Registration Date',
 				name: 'registrationDate',
 				type: 'dateTime',
 				default: '',
 				description: 'Date and time when the applicant was initially registered in your system',
+			},
+			{
+				displayName: 'Source Key',
+				name: 'sourceKey',
+				type: 'string',
+				default: '',
+				description: 'Helps group clients sending applicants',
 			},
 		],
 	},
@@ -404,15 +489,15 @@ export const sumsubFields: INodeProperties[] = [
 		name: 'stepToReset',
 		type: 'multiOptions',
 		options: [
-			{ name: 'Identity', value: 'IDENTITY' },
-			{ name: 'Selfie', value: 'SELFIE' },
-			{ name: 'Proof of Residence', value: 'PROOF_OF_RESIDENCE' },
-			{ name: 'Phone Verification', value: 'PHONE_VERIFICATION' },
-			{ name: 'Email Verification', value: 'EMAIL_VERIFICATION' },
-			{ name: 'Questionnaire', value: 'QUESTIONNAIRE' },
+			{ name: 'Applicant Data', value: 'APPLICANT_DATA' },
 			{ name: 'Company Data', value: 'COMPANY_DATA' },
 			{ name: 'Company Documents', value: 'COMPANY_DOCUMENTS' },
-			{ name: 'Applicant Data', value: 'APPLICANT_DATA' },
+			{ name: 'Email Verification', value: 'EMAIL_VERIFICATION' },
+			{ name: 'Identity', value: 'IDENTITY' },
+			{ name: 'Phone Verification', value: 'PHONE_VERIFICATION' },
+			{ name: 'Proof of Residence', value: 'PROOF_OF_RESIDENCE' },
+			{ name: 'Questionnaire', value: 'QUESTIONNAIRE' },
+			{ name: 'Selfie', value: 'SELFIE' },
 		],
 		default: [],
 		description: 'The verification step to reset',
@@ -445,6 +530,7 @@ export const sumsubFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,
+			sortable: true,
 		},
 		displayOptions: {
 			show: {
@@ -478,6 +564,7 @@ export const sumsubFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,
+			sortable: true,
 		},
 		displayOptions: {
 			show: {
@@ -518,6 +605,7 @@ export const sumsubFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,
+			sortable: true,
 		},
 		displayOptions: {
 			show: {
@@ -661,32 +749,33 @@ export const sumsubFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
+				displayName: 'Country',
+				name: 'country',
+				type: 'string',
+				default: '',
+				description: 'Applicant country (ISO 3166-1 alpha-3 code)',
+			},
+			{
+				displayName: 'Country of Birth',
+				name: 'countryOfBirth',
+				type: 'string',
+				default: '',
+				description: 'Applicant country of birth (ISO 3166-1 alpha-3 code)',
+			},
+			{
+				displayName: 'Date of Birth',
+				name: 'dob',
+				type: 'string',
+				default: '',
+				placeholder: 'YYYY-MM-DD',
+				description: 'Applicant date of birth',
+			},
+			{
 				displayName: 'First Name',
 				name: 'firstName',
 				type: 'string',
 				default: '',
 				description: 'Applicant first name',
-			},
-			{
-				displayName: 'Last Name',
-				name: 'lastName',
-				type: 'string',
-				default: '',
-				description: 'Applicant last name',
-			},
-			{
-				displayName: 'Middle Name',
-				name: 'middleName',
-				type: 'string',
-				default: '',
-				description: 'Applicant middle name',
-			},
-			{
-				displayName: 'Legal Name',
-				name: 'legalName',
-				type: 'string',
-				default: '',
-				description: 'Applicant legal name',
 			},
 			{
 				displayName: 'Gender',
@@ -706,12 +795,32 @@ export const sumsubFields: INodeProperties[] = [
 				description: 'Applicant gender',
 			},
 			{
-				displayName: 'Date of Birth',
-				name: 'dob',
+				displayName: 'Last Name',
+				name: 'lastName',
 				type: 'string',
 				default: '',
-				placeholder: 'YYYY-MM-DD',
-				description: 'Applicant date of birth',
+				description: 'Applicant last name',
+			},
+			{
+				displayName: 'Legal Name',
+				name: 'legalName',
+				type: 'string',
+				default: '',
+				description: 'Applicant legal name',
+			},
+			{
+				displayName: 'Middle Name',
+				name: 'middleName',
+				type: 'string',
+				default: '',
+				description: 'Applicant middle name',
+			},
+			{
+				displayName: 'Nationality',
+				name: 'nationality',
+				type: 'string',
+				default: '',
+				description: 'Applicant nationality (ISO 3166-1 alpha-3 code)',
 			},
 			{
 				displayName: 'Place of Birth',
@@ -721,32 +830,11 @@ export const sumsubFields: INodeProperties[] = [
 				description: 'Applicant place of birth',
 			},
 			{
-				displayName: 'Country of Birth',
-				name: 'countryOfBirth',
-				type: 'string',
-				default: '',
-				description: 'Applicant country of birth (ISO 3166-1 alpha-3 code)',
-			},
-			{
 				displayName: 'State of Birth',
 				name: 'stateOfBirth',
 				type: 'string',
 				default: '',
 				description: 'Applicant state of birth',
-			},
-			{
-				displayName: 'Country',
-				name: 'country',
-				type: 'string',
-				default: '',
-				description: 'Applicant country (ISO 3166-1 alpha-3 code)',
-			},
-			{
-				displayName: 'Nationality',
-				name: 'nationality',
-				type: 'string',
-				default: '',
-				description: 'Applicant nationality (ISO 3166-1 alpha-3 code)',
 			},
 		],
 	},
@@ -759,6 +847,7 @@ export const sumsubFields: INodeProperties[] = [
 		default: {},
 		typeOptions: {
 			multipleValues: true,
+			sortable: true,
 		},
 		displayOptions: {
 			show: {
@@ -776,12 +865,12 @@ export const sumsubFields: INodeProperties[] = [
 						name: 'category',
 						type: 'options',
 						options: [
-							{ name: 'Manual', value: 'manual' },
-							{ name: 'Fraud', value: 'fraud' },
-							{ name: 'Finance', value: 'finance' },
-							{ name: 'Regulation', value: 'regulation' },
 							{ name: 'Abuse', value: 'abuse' },
 							{ name: 'Device', value: 'device' },
+							{ name: 'Finance', value: 'finance' },
+							{ name: 'Fraud', value: 'fraud' },
+							{ name: 'Manual', value: 'manual' },
+							{ name: 'Regulation', value: 'regulation' },
 						],
 						default: 'manual',
 						description: 'Category of the rejection reason',
@@ -815,13 +904,13 @@ export const sumsubFields: INodeProperties[] = [
 						},
 						options: [
 							{ name: 'Document Forgery', value: 'documentForgery' },
-							{ name: 'Multi Accounting', value: 'multiAccounting' },
-							{ name: 'Fake Contact Data', value: 'fakeContactData' },
-							{ name: 'Location Manipulation', value: 'locationManipulation' },
-							{ name: 'Image Manipulation', value: 'imageManipulation' },
-							{ name: 'Stolen Identity', value: 'stolenIdentity' },
-							{ name: 'Social Engineering', value: 'socialEngineering' },
 							{ name: 'Elder Abuse', value: 'elderAbuse' },
+							{ name: 'Fake Contact Data', value: 'fakeContactData' },
+							{ name: 'Image Manipulation', value: 'imageManipulation' },
+							{ name: 'Location Manipulation', value: 'locationManipulation' },
+							{ name: 'Multi Accounting', value: 'multiAccounting' },
+							{ name: 'Social Engineering', value: 'socialEngineering' },
+							{ name: 'Stolen Identity', value: 'stolenIdentity' },
 						],
 						default: 'documentForgery',
 						description: 'Reason code for Fraud category',
@@ -837,11 +926,11 @@ export const sumsubFields: INodeProperties[] = [
 							},
 						},
 						options: [
+							{ name: 'Card Scam', value: 'cardScam' },
 							{ name: 'Chargeback', value: 'chargeback' },
-							{ name: 'Suspicious Accounts', value: 'suspiciousAccounts' },
 							{ name: 'High Risk Payment Method', value: 'highRiskPaymentMethod' },
 							{ name: 'Money Muling', value: 'moneyMuling' },
-							{ name: 'Card Scam', value: 'cardScam' },
+							{ name: 'Suspicious Accounts', value: 'suspiciousAccounts' },
 						],
 						default: 'chargeback',
 						description: 'Reason code for Finance category',
@@ -875,8 +964,8 @@ export const sumsubFields: INodeProperties[] = [
 							},
 						},
 						options: [
-							{ name: 'Automated Behavior', value: 'automatedBehavior' },
 							{ name: 'Account Sharing', value: 'accountSharing' },
+							{ name: 'Automated Behavior', value: 'automatedBehavior' },
 							{ name: 'Multi Accounting', value: 'multiAccounting' },
 							{ name: 'Promotion Abuse', value: 'promotionAbuse' },
 							{ name: 'Terms Violation', value: 'termsViolation' },
@@ -924,6 +1013,7 @@ export const sumsubFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,
+			sortable: true,
 		},
 		displayOptions: {
 			show: {
@@ -948,5 +1038,19 @@ export const sumsubFields: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: 'Transaction ID',
+		name: 'txnId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['transaction'],
+				operation: ['delete', 'get', 'getTags'],
+			},
+		},
+		default: '',
+		description: 'The transaction ID to perform the operation on',
 	},
 ];
