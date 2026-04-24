@@ -504,8 +504,6 @@ async function makeRequest(params: MakeRequestParams): Promise<SumsubApiResponse
 		pathWithQuery += `?${queryString}`;
 	}
 
-	const signature = createSignature({ method, path: pathWithQuery, timestamp, body: bodyString, appSecret });
-
 	const options: IHttpRequestOptions = {
 		method,
 		url: path,
@@ -514,8 +512,6 @@ async function makeRequest(params: MakeRequestParams): Promise<SumsubApiResponse
 		headers: {
 			'Content-Type': 'application/json',
 			'X-App-Token': appToken,
-			'X-App-Access-Sig': signature,
-			'X-App-Access-Ts': timestamp.toString(),
 		},
 		json: true,
 	};
@@ -524,7 +520,32 @@ async function makeRequest(params: MakeRequestParams): Promise<SumsubApiResponse
 		options.body = body;
 	}
 
-	return await executeFunctions.helpers.request(options);
+	let attempt = 0;
+	const maxRetries = 5;
+
+	while (true) {
+		try {
+			const currentTimestamp = Math.floor(Date.now() / 1000);
+			const currentSignature = createSignature({ method, path: pathWithQuery, timestamp: currentTimestamp, body: bodyString, appSecret });
+			
+			if (options.headers) {
+				options.headers['X-App-Access-Sig'] = currentSignature;
+				options.headers['X-App-Access-Ts'] = currentTimestamp.toString();
+			}
+
+			return await executeFunctions.helpers.request(options);
+		} catch (error: any) {
+			const statusCode = error.statusCode || error.status || (error.response && (error.response.statusCode || error.response.status));
+			if (statusCode === 429 && attempt < maxRetries) {
+				attempt++;
+				const delay = attempt * 2000; // 2s, 4s, 6s, 8s, 10s
+				console.log(`[Sumsub] Encountered 429 Too Many Requests. Retrying attempt ${attempt}/${maxRetries} after ${delay}ms...`);
+				await new Promise(resolve => setTimeout(resolve, delay));
+				continue;
+			}
+			throw error;
+		}
+	}
 }
 
 interface ApplicantOperationParams {
