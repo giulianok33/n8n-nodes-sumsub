@@ -537,7 +537,9 @@ async function makeRequest(params: MakeRequestParams): Promise<SumsubApiResponse
 			const statusCode = error.statusCode || error.status || (error.response && (error.response.statusCode || error.response.status));
 			if (statusCode === 429 && attempt < maxRetries) {
 				attempt++;
-				const delay = attempt * 2000; // 2s, 4s, 6s, 8s, 10s
+				// Sumsub limit buckets are 5.0 seconds. 
+				// Waiting 5.5s + (attempt * 1s) guarantees we clear the window and allows a little jitter.
+				const delay = 5500 + (attempt * 1000); 
 				console.log(`[Sumsub] Encountered 429 Too Many Requests. Retrying attempt ${attempt}/${maxRetries} after ${delay}ms...`);
 				await new Promise(resolve => setTimeout(resolve, delay));
 				continue;
