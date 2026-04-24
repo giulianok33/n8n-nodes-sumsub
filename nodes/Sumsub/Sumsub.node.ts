@@ -493,7 +493,6 @@ interface MakeRequestParams {
 
 async function makeRequest(params: MakeRequestParams): Promise<SumsubApiResponse> {
 	const { executeFunctions, method, path, apiUrl, appToken, appSecret, body, qs } = params;
-	const timestamp = Math.floor(Date.now() / 1000);
 	const bodyString = body !== undefined ? JSON.stringify(body) : '';
 
 	let pathWithQuery = path;
