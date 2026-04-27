@@ -745,9 +745,6 @@ async function changeProfileData(params: ApplicantOperationParams): Promise<IDat
 		lang?: string;
 		registrationDate?: string;
 	};
-	const metadata = executeFunctions.getNodeParameter('metadata', itemIndex, []) as
-		| string
-		| Array<{ key: string; value: string }>;
 
 	const body: ChangeProfileDataBody = {
 		id: applicantId,
@@ -759,21 +756,6 @@ async function changeProfileData(params: ApplicantOperationParams): Promise<IDat
 	if (changeFields.sourceKey) body.sourceKey = changeFields.sourceKey;
 	if (changeFields.lang) body.lang = changeFields.lang;
 	if (changeFields.registrationDate) body.registrationDate = changeFields.registrationDate;
-
-	if (metadata) {
-		if (typeof metadata === 'string') {
-			try {
-				const parsedMetadata = JSON.parse(metadata);
-				if (Array.isArray(parsedMetadata) && parsedMetadata.length > 0) {
-					body.metadata = parsedMetadata;
-				}
-			} catch (error) {
-				// Ignore JSON parse error if invalid json is provided, or handle it as needed
-			}
-		} else if (Array.isArray(metadata) && metadata.length > 0) {
-			body.metadata = metadata;
-		}
-	}
 
 	const path = '/resources/applicants';
 	return (await makeRequest({

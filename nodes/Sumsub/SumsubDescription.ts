@@ -467,19 +467,6 @@ export const sumsubFields: INodeProperties[] = [
 			},
 		],
 	},
-	{
-		displayName: 'Metadata',
-		name: 'metadata',
-		type: 'json',
-		displayOptions: {
-			show: {
-				resource: ['applicant'],
-				operation: ['changeProfileData'],
-			},
-		},
-		default: '[]',
-		description: 'Metadata key-value pairs as JSON array (e.g. [{"key": "key1", "value": "value1"}])',
-	},
 
 
 
