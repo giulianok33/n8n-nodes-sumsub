@@ -764,13 +764,13 @@ async function changeProfileData(params: ApplicantOperationParams): Promise<IDat
 		if (typeof metadata === 'string') {
 			try {
 				const parsedMetadata = JSON.parse(metadata);
-				if (Array.isArray(parsedMetadata)) {
+				if (Array.isArray(parsedMetadata) && parsedMetadata.length > 0) {
 					body.metadata = parsedMetadata;
 				}
 			} catch (error) {
 				// Ignore JSON parse error if invalid json is provided, or handle it as needed
 			}
-		} else if (Array.isArray(metadata)) {
+		} else if (Array.isArray(metadata) && metadata.length > 0) {
 			body.metadata = metadata;
 		}
 	}
