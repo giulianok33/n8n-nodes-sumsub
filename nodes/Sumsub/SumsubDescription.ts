@@ -266,6 +266,13 @@ export const sumsubFields: INodeProperties[] = [
 				default: '',
 				description: 'Helps group clients sending applicants',
 			},
+			{
+				displayName: 'Creation Tracking Data (JSON)',
+				name: 'creationTrackingData',
+				type: 'json',
+				default: '{}',
+				description: 'Object used to pass IP for Advanced IP checks. e.g. {"ip": "1.2.3.4"}',
+			},
 		],
 	},
 

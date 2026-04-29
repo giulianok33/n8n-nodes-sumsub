@@ -21,6 +21,7 @@ interface ApplicantAdditionalFields {
 	email?: string;
 	phone?: string;
 	sourceKey?: string;
+	creationTrackingData?: string | object;
 }
 
 interface ApplicantUpdateFields {
@@ -36,6 +37,7 @@ interface CreateApplicantBody extends IDataObject {
 	email?: string;
 	phone?: string;
 	sourceKey?: string;
+	creationTrackingData?: object;
 }
 
 interface UpdateApplicantBody extends IDataObject {
@@ -582,6 +584,17 @@ async function createApplicant(params: ApplicantOperationParams): Promise<Applic
 	if (additionalFields.email) body.email = additionalFields.email;
 	if (additionalFields.phone) body.phone = additionalFields.phone;
 	if (additionalFields.sourceKey) body.sourceKey = additionalFields.sourceKey;
+	if (additionalFields.creationTrackingData) {
+		if (typeof additionalFields.creationTrackingData === 'string') {
+			try {
+				body.creationTrackingData = JSON.parse(additionalFields.creationTrackingData);
+			} catch (error) {
+				// Avoid throwing generic json errors, handle silently or omit
+			}
+		} else {
+			body.creationTrackingData = additionalFields.creationTrackingData;
+		}
+	}
 
 	const path = `/resources/applicants?levelName=${encodeURIComponent(levelName)}`;
 	return (await makeRequest({
