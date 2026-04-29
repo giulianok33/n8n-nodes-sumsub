@@ -1040,4 +1040,11 @@ export const sumsubFields: INodeProperties[] = [
 		default: '',
 		description: 'The transaction ID to perform the operation on',
 	},
+	{
+		displayName: 'Pass Through Input Fields',
+		name: 'passThroughInput',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to merge the incoming item fields into the Sumsub API response JSON',
+	},
 ];

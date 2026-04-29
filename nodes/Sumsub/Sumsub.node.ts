@@ -436,8 +436,14 @@ export class Sumsub implements INodeType {
 					throw new NodeOperationError(this.getNode(), `The resource "${resource}" is not known!`);
 				}
 
+				const passThroughInput = this.getNodeParameter('passThroughInput', i, false) as boolean;
+				let finalJson = responseData as IDataObject;
+				if (passThroughInput) {
+					finalJson = { ...items[i].json, ...finalJson };
+				}
+
 				returnData.push({
-					json: responseData,
+					json: finalJson,
 					pairedItem: {
 						item: i,
 					},
